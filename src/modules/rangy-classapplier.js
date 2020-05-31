@@ -55,25 +55,11 @@ rangy.createModule("ClassApplier", ["WrappedSelection"], function(api, module) {
         }
     }
 
-    function addClass(el, className) {
-        if (typeof el.classList == "object") {
-            el.classList.add(className);
-        } else {
-            var classNameSupported = (typeof el.className == "string");
-            var elClass = classNameSupported ? el.className : el.getAttribute("class");
-            if (elClass) {
-                if (!classNameContainsClass(elClass, className)) {
-                    elClass += " " + className;
-                }
-            } else {
-                elClass = className;
-            }
-            if (classNameSupported) {
-                el.className = elClass;
-            } else {
-                el.setAttribute("class", elClass);
-            }
-        }
+    function addClass(el, className, extra) {
+        el.style.backgroundColor = extra.color;
+        el.className = ((el.className || "").split(className).join("").trim() + " "+className).trim();
+        el.setAttribute("data-highlight-color", extra.color);
+        el.setAttribute("data-highlight-id", extra.id);
     }
 
     var removeClass = (function() {
@@ -94,6 +80,8 @@ rangy.createModule("ClassApplier", ["WrappedSelection"], function(api, module) {
                     el.setAttribute("class", elClass);
                 }
             }
+
+            el.style.backgroundColor = "initial";
         };
     })();
 
@@ -760,7 +748,7 @@ rangy.createModule("ClassApplier", ["WrappedSelection"], function(api, module) {
 
             this.copyPropertiesToElement(this.elementProperties, el, false);
             this.copyAttributesToElement(this.elementAttributes, el);
-            addClass(el, this.className);
+            addClass(el, this.className, this.getHighlightExtra());
             if (this.onElementCreate) {
                 this.onElementCreate(el, this);
             }
@@ -808,7 +796,7 @@ rangy.createModule("ClassApplier", ["WrappedSelection"], function(api, module) {
                     this.elementHasProperties(parent, this.elementProperties) &&
                     this.elementHasAttributes(parent, this.elementAttributes)) {
 
-                    addClass(parent, this.className);
+                    addClass(parent, this.className, this.getHighlightExtra());
                 } else {
                     var textNodeParent = textNode.parentNode;
                     var el = this.createContainer(textNodeParent);
@@ -1090,7 +1078,15 @@ rangy.createModule("ClassApplier", ["WrappedSelection"], function(api, module) {
             return elements;
         },
 
-        detach: function() {}
+        detach: function () {
+        },
+        getHighlightExtra() {
+            try {
+                return this.$highlightRef.extra;
+            } catch (e) {
+                return {};
+            }
+        }
     };
 
     function createClassApplier(className, options, tagNames) {

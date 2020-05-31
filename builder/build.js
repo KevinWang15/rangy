@@ -401,9 +401,6 @@ var actions = [
     removeLoggingFromScripts,
     substituteBuildVars,
     lint,
-    minify,
-    zip,
-    tarGz,
     copyToLib,
     copyToRelease
 ];
